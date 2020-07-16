@@ -22,22 +22,13 @@ func main() {
 		errorLog: log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
-	mux.HandleFunc("/", app.home)
-
-	fileServer := http.FileServer(http.Dir(*static))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	app.infoLog.Println("Starting server on port", *addr)
-
 	srv := &http.Server{
 		Addr:     fmt.Sprint(":", *addr),
 		ErrorLog: app.errorLog,
-		Handler:  mux,
+		Handler:  app.routes(static),
 	}
 
+	app.infoLog.Println("Starting server on port", *addr)
 	err := srv.ListenAndServe()
 	app.errorLog.Fatal("ERROR", err)
 }
