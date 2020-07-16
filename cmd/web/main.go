@@ -9,10 +9,12 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/guillem-gelabert/snippetbox/pkg/models/mysql"
 )
 
 type application struct {
 	infoLog, errorLog *log.Logger
+	snippets          *mysql.SnippetModel
 }
 
 func main() {
@@ -21,17 +23,20 @@ func main() {
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
-	app := &application{
-		infoLog:  log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
-		errorLog: log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
-	}
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	db, err := openDB(*dsn)
 	if err != nil {
-		app.errorLog.Fatal(err)
+		errorLog.Fatal(err)
 	}
-
 	defer db.Close()
+
+	app := &application{
+		infoLog:  infoLog,
+		errorLog: errorLog,
+		snippets: &mysql.SnippetModel{DB: db},
+	}
 
 	srv := &http.Server{
 		Addr:     fmt.Sprint(":", *addr),
