@@ -61,10 +61,13 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:      fmt.Sprint(":", *addr),
-		ErrorLog:  app.errorLog,
-		Handler:   app.routes(static),
-		TLSConfig: tlsConfig,
+		Addr:         fmt.Sprint(":", *addr),
+		ErrorLog:     app.errorLog,
+		Handler:      app.routes(static),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	app.infoLog.Println("Starting server on port", *addr)
