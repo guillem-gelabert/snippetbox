@@ -3,9 +3,13 @@ package forms
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
+
+// EmailRX is the compiled regexp for checking the format of an email address
+var EmailRX = regexp.MustCompile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
 
 // Form anonymously embeds a url.Values object (to hold the form data)
 // and an Errors field to hold any validation errors  from the form data
@@ -55,6 +59,30 @@ func (f *Form) PermittedValues(field string, opts ...string) {
 		}
 	}
 	f.Errors.Add(field, "This field is invalid")
+}
+
+// MinLength checks that a specific field in the form contains a minimum number of characters
+func (f *Form) MinLength(field string, d int) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+
+	if utf8.RuneCountInString(value) < d {
+		f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum is %d characters)", d))
+	}
+}
+
+// MatchesPattern checks that a specific field matches a regular expression
+func (f *Form) MatchesPattern(field string, pattern *regexp.Regexp) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+
+	if !pattern.MatchString(value) {
+		f.Errors.Add(field, "This field is invalid")
+	}
 }
 
 // Valid returns true if there are no errors
