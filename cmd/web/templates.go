@@ -2,11 +2,20 @@ package main
 
 import (
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"time"
 
 	"github.com/guillem-gelabert/snippetbox/pkg/models"
 )
+
+type templateData struct {
+	CurrentYear int
+	FormData    url.Values
+	FormErrors  map[string]string
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
+}
 
 func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
@@ -45,10 +54,4 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 		cache[name] = ts
 	}
 	return cache, nil
-}
-
-type templateData struct {
-	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
 }
