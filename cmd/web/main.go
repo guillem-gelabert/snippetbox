@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -54,10 +55,16 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	srv := &http.Server{
-		Addr:     fmt.Sprint(":", *addr),
-		ErrorLog: app.errorLog,
-		Handler:  app.routes(static),
+		Addr:      fmt.Sprint(":", *addr),
+		ErrorLog:  app.errorLog,
+		Handler:   app.routes(static),
+		TLSConfig: tlsConfig,
 	}
 
 	app.infoLog.Println("Starting server on port", *addr)
