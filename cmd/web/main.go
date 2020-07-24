@@ -22,7 +22,7 @@ type application struct {
 func main() {
 	addr := flag.Int("addr", 4000, "HTTP network address")
 	static := flag.String("static-dir", "./ui/static", "Static files directory")
-	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+	dsn := flag.String("dsn", "web:offend-being-product@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
