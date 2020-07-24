@@ -13,7 +13,7 @@ func (app *application) routes(static *string) http.Handler {
 
 	mux := pat.New()
 
-	mux.Get("/", http.HandlerFunc(app.home))
+	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
 	mux.Get("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippetForm))
 	mux.Post("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippet))
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
