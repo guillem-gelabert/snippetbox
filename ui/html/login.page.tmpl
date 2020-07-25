@@ -1,0 +1,27 @@
+{{template "base" .}}
+
+{{define "title"}}Login{{end}}
+
+{{define "main"}}
+<form action='/user/login' method='POST' novalidate>
+    {{with .Form}}
+        {{with .Errors.Get "generic"}}
+        <div class='error'>{{.}}</div>
+        {{end}}
+        <div>
+            <label>Email:</label>
+            {{with .Errors.Get "email"}}
+                <label class='error'>{{.}}</label>
+            {{end}}
+            <input type='text' name='email' value='{{.Get "email"}}'>
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type='password' name='password'>
+        </div>
+        <div>
+            <input type='submit' value='Login'>
+        </div>
+    {{end}}
+</form>
+{{end}}
