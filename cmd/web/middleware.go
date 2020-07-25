@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
@@ -17,6 +19,17 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) noSurf(next http.Handler) http.Handler {
+	crsfHandler := nosurf.New(next)
+	crsfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+
+	return crsfHandler
 }
 
 func (app *application) recoverPanic(next http.Handler) http.Handler {
