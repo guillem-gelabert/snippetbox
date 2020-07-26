@@ -113,3 +113,47 @@ func TestSignupUser(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateSnippetForm(t *testing.T) {
+	st := "./../../ui/static"
+	var static *string = &st
+
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes(static))
+	defer ts.Close()
+
+	t.Run("Unauthenticated", func(t *testing.T) {
+		code, headers, _ := ts.get(t, "/snippet/create")
+
+		actualHeader := headers.Get("Location")
+
+		if http.StatusSeeOther != code {
+			t.Errorf("expected %d to be %d", code, http.StatusSeeOther)
+		}
+
+		if actualHeader != "/user/login" {
+			t.Errorf("expected %s to be %s", actualHeader, "/user/login")
+		}
+	})
+
+	t.Run("Authenticated", func(t *testing.T) {
+		_, _, body := ts.get(t, "/user/login")
+		csrfToken := extractCSRFToken(t, body)
+
+		form := url.Values{}
+		form.Add("email", "alice@example.com")
+		form.Add("password", "123123123")
+		form.Add("csrf_token", csrfToken)
+		ts.postForm(t, "/user/login", form)
+
+		code, _, body := ts.get(t, "/snippet/create")
+
+		if code != http.StatusOK {
+			t.Errorf("expected %d to be %d", code, http.StatusOK)
+		}
+
+		if !bytes.Contains(body, []byte("<form action='/snippet/create' method='POST'>")) {
+			t.Errorf("expected %s to be %q", body, "<form action='/snippet/create' method='POST'>")
+		}
+	})
+}
