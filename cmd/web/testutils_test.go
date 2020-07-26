@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 )
@@ -21,6 +22,20 @@ type testServer struct {
 
 func newTestServer(t *testing.T, h http.Handler) *testServer {
 	ts := httptest.NewTLSServer(h)
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ts.Client().Jar = jar
+
+	// Lifecycle method is called after 300 response
+	ts.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		// forces immediate return of initial response
+		return http.ErrUseLastResponse
+	}
+
 	return &testServer{ts}
 }
 
