@@ -189,3 +189,11 @@ func (app *application) userProfile(w http.ResponseWriter, r *http.Request) {
 		User: user,
 	})
 }
+
+func (app *application) changePasswordForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "password.page.tmpl", &templateData{})
+}
+
+func (app *application) changePassword(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+}
