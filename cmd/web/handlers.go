@@ -172,3 +172,20 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
+
+func (app *application) userProfile(w http.ResponseWriter, r *http.Request) {
+	id := app.session.GetInt(r, "authenticatedUserID")
+	user, err := app.users.Get(id)
+	app.infoLog.Println(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		}
+		app.serverError(w, err)
+		return
+	}
+
+	app.render(w, r, "profile.page.tmpl", &templateData{
+		User: user,
+	})
+}
