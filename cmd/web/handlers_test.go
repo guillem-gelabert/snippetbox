@@ -58,3 +58,18 @@ func TestShowSnippet(t *testing.T) {
 		})
 	}
 }
+
+func TestSignupUser(t *testing.T) {
+	st := "./../../ui/static"
+	var static *string = &st
+
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes(static))
+	defer ts.Close()
+
+	_, _, body := ts.get(t, "/user/signup")
+
+	csrfToken := extractCSRFToken(t, body)
+
+	t.Log(csrfToken)
+}
