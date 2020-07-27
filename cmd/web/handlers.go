@@ -156,7 +156,12 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.session.Put(r, "authenticatedUserID", id)
-	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+
+	target := "/snippet/create"
+	if app.session.Exists(r, "origin") {
+		target = app.session.PopString(r, "origin")
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
