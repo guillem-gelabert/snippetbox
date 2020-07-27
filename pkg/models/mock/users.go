@@ -46,3 +46,16 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 		return nil, models.ErrNoRecord
 	}
 }
+
+// ChangePassword mocks the ChangePassword method of the User Model
+func (m *UserModel) ChangePassword(id int, currentPassword, newPassword string) error {
+	if id != 1 {
+		return models.ErrNoRecord
+	}
+
+	if currentPassword != "123123123123" {
+		return models.ErrInvalidCredentials
+	}
+
+	return nil
+}
