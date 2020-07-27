@@ -22,6 +22,7 @@ type contextKey string
 const contextKeyIsAuthenticated = contextKey("isAuthenticated")
 
 type application struct {
+	debug    bool
 	errorLog *log.Logger
 	infoLog  *log.Logger
 	session  *sessions.Session
@@ -44,6 +45,7 @@ func main() {
 	static := flag.String("static-dir", "./ui/static", "Static files directory")
 	dsn := flag.String("dsn", "web:offend-being-product@/snippetbox?parseTime=true", "MySQL data source name")
 	secret := flag.String("secret", "af*P.Z8Q7.TpGsNrtqvEdK3bNNfz6cCu", "Secret key")
+	debug := flag.Bool("debug", false, "Debug returns error in the response")
 
 	flag.Parse()
 
@@ -63,6 +65,7 @@ func main() {
 	session.Secure = true
 
 	app := &application{
+		debug:         *debug,
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		session:       session,
