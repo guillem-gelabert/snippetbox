@@ -90,3 +90,38 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 	}
 	return u, nil
 }
+
+// ChangePassword updates user password
+func (m *UserModel) ChangePassword(id int, currentPassword, newPassword string) error {
+	u, err := m.Get(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.ErrNoRecord
+		}
+
+		return err
+	}
+
+	_, err = m.Authenticate(u.Email, currentPassword)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	if err != nil {
+		return err
+	}
+
+	stmt := `
+		UPDATE users
+		SET hashed_password = ?
+		WHERE id = ?
+	`
+
+	_, err = m.DB.Exec(stmt, hashedPassword, u.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
