@@ -229,9 +229,7 @@ func (app *application) changePassword(w http.ResponseWriter, r *http.Request) {
 			})
 		} else {
 			app.serverError(w, err)
-			return
 		}
-		app.serverError(w, err)
 		return
 	}
 
