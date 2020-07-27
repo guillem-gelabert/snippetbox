@@ -197,5 +197,28 @@ func (app *application) changePasswordForm(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) changePassword(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+
+	if form.Get("newPassword") != form.Get("newPasswordConfirmation") {
+		form.Errors.Add("newPasswordConfirmation", "Passwords do not match")
+	}
+
+	form.Required("currentPassword", "newPassword", "newPasswordConfirmation")
+	form.MaxLength("newPassword", 100)
+	form.MinLength("newPassword", 10)
+
+	if !form.Valid() {
+		app.render(w, r, "password.page.tmpl", &templateData{
+			Form: form,
+		})
+		return
+	}
+
+	// http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
